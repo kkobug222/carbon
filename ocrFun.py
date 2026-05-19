@@ -1,5 +1,73 @@
 import easyocr
 import re
+import sqlite3
+import os
+import warnings
+
+def init_db():
+    #db와 연결하기
+    con = sqlite3.connect('food.db')
+    cur = con.cursor()
+    # print("db 생성 및 연결")
+
+    #테이블 생성
+    cur.execute("DROP TABLE IF EXISTS food")
+    sql = "CREATE TABLE IF NOT EXISTS food (id int, name varchar(255), co2 float)"
+    cur.execute(sql)
+    # print("테이블 생성")
+
+    #데이터 추가(txt파일)
+    f = open("carbonData.txt", "r", encoding="utf-8")
+
+    for line in f:
+        data = line.split()
+
+        id = int(data[0])
+        name = data[1]
+        co2 = float(data[2])
+
+        sql = "INSERT INTO food VALUES(?, ?, ?)"
+        val = (id, name, co2)
+
+        cur.execute(sql, val)
+        # print(cur.rowcount,"개 데이터 추가")
+
+    f.close()
+
+    con.commit()
+    # print("데이터가 추가됨")
+
+    cur.close()
+    con.close()
+    # print("db 세팅완료")
+
+#db 조회 함수
+def search_food(name):
+    # 예: txt 파일 이름이 'food_data.txt'라고 가정합니다.
+    file_path = "carbonData.txt" 
+    
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            for line in f:
+                if "," in line:
+                    food_name, co2_val = line.strip().split(",")
+                    
+                    
+                    if food_name in name or name in food_name:
+                        print(f"🔍 매칭 성공: {food_name} (탄소량: {co2_val})")
+                        return float(co2_val)
+                        
+    except FileNotFoundError:
+        print(f"❌ '{file_path}' 파일을 찾을 수 없습니다. 경로를 확인해주세요!")
+        
+    return 0.0  # 품목이 txt파일에 없을 경우 0임 --> 어떻게 하지...
+
+
+# PyTorch가 내부 소스 코드를 inspect할 때 발생하는 에러를 방지하기 위한 임시 조치
+os.environ["TORCH_SHOW_CPP_STACKTRACES"] = "0"
+warnings.filterwarnings("ignore", category=UserWarning)
+
+print("OCR 리더기를 초기화 중입니다...")
 
 reader = easyocr.Reader(['ko', 'en'], gpu=False)
 result = reader.readtext('test.webp')  #이미지 파일 넣기!!!!
@@ -40,4 +108,11 @@ for detection in result:
     # 저장
     menu_list.append(text)
     print(f"- {text}")
+
+    co2_val = search_food(text)  # 1. 방금 OCR이 읽은 text를 DB 함수로 보내서 검색하기
+    print(f"- {text} : {co2_val}g CO2")  # 2. 메뉴명과 검색된 탄소량을 세트로 출력하기
+
+
+
+
 
