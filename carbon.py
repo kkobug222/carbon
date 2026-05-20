@@ -13,12 +13,11 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-#db초기화
+# db 초기화
 def init_db():
     con = sqlite3.connect('food.db')
     cur = con.cursor()
     cur.execute("DROP TABLE IF EXISTS food")
-    #기존 컬럼명 value 대신 확실하게 co2 float으로 테이블 정의
     cur.execute("CREATE TABLE IF NOT EXISTS food (id int, name varchar(255), co2 float)")
 
     file_path = "carbonData.txt"
@@ -41,14 +40,13 @@ def init_db():
     cur.close()
     con.close()
 
-#DB 검색 함수 (공백 제거 후 부분 일치 비교)
+# DB 검색 함수 (공백 제거 후 부분 일치 비교)
 def search_food_db(name):
     con = sqlite3.connect('food.db')
     cur = con.cursor()
     
     clean_name = name.replace(" ", "").lower()
     
-    #SQL 조회 쿼리문 내부에 value가 있다면 co2로 안전하게 매칭되도록 연동
     cur.execute("SELECT name, co2 FROM food")
     rows = cur.fetchall()
     cur.close()
@@ -56,7 +54,6 @@ def search_food_db(name):
     
     for food_name, co2_val in rows:
         clean_food_name = food_name.replace(" ", "").lower()
-        #텍스트와 DB 품목명 간의 상호 부분 일치 검사
         if clean_food_name in clean_name or clean_name in clean_food_name:
             return float(co2_val)
             
@@ -88,7 +85,7 @@ def upload():
         file.save(file_path)
 
         try:
-            #EasyOCR 실행 및 분석
+            # EasyOCR 실행 및 분석
             result = reader.readtext(file_path)
             
             trash_keywords = [
@@ -114,15 +111,14 @@ def upload():
                 if co2_val != -1.0:
                     detected_menu_db[text] = co2_val
 
-            
             if os.path.exists(file_path):
                 os.remove(file_path)
 
             is_fallback_flag = False
 
-            # 만약 영수증 인식에 실패해서 결과 딕셔너리가 비어있다면
+            # 만약 영수증 인식에 실패해서 결과 딕셔너리가 비어있다면 전체 메뉴 서빙
             if not detected_menu_db:
-                is_fallback_flag = True  # 안전장치 작동 표시 활성화
+                is_fallback_flag = True
                 
                 con = sqlite3.connect('food.db')
                 cur = con.cursor()

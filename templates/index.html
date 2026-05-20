@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carbon Green Kiosk</title>
+    <title>Carbon Green</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; font-family: 'Apple SD Gothic Neo', sans-serif; overflow-x: hidden; }
@@ -12,7 +12,6 @@
             background: linear-gradient(135deg, #E0F2FE 0%, #DCFCE7 100%); 
             z-index: -2; transition: background 1.2s ease;
         }
-        /* 탄소 배출량이 높을 때 변하는 테마 스타일 */
         .polluted-bg { background: linear-gradient(135deg, #374151 0%, #1F2937 100%) !important; }
         .glass-ui {
             background: rgba(255, 255, 255, 0.45);
@@ -37,11 +36,14 @@
 
         <div id="page-1" class="glass-ui p-8 text-center space-y-6">
             <div class="text-5xl">🌱</div>
-            <h2 class="text-xl font-bold text-gray-800">그린 키오스크</h2>
+            <h2 class="text-xl font-bold text-gray-800">Carbon Green</h2>
             
             <div class="flex flex-col space-y-3">
-                <button onclick="triggerFileUpload()" class="w-full py-4 bg-white text-green-600 rounded-full font-bold shadow-md hover:bg-green-50 transition">
+                <button onclick="triggerFileUpload('calculator')" class="w-full py-4 bg-white text-green-600 rounded-full font-bold shadow-md hover:bg-green-50 transition">
                     📷 탄소 계산기 (총합 합산)
+                </button>
+                <button onclick="triggerFileUpload('recommendation')" class="w-full py-4 bg-white text-purple-600 rounded-full font-bold shadow-md hover:bg-purple-50 transition">
+                    🤖 추천 서비스 (음식 비교)
                 </button>
             </div>
             <p id="status" class="text-[11px] text-gray-400 font-medium mt-2"></p>
@@ -83,11 +85,11 @@
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <div id="cardA" class="glass-ui p-5 text-center text-gray-800 relative cursor-pointer" onclick="selectTodayMenu('A')">
+                <div id="cardA" class="glass-ui p-5 text-center text-gray-800 relative cursor-pointer">
                     <p class="text-xs opacity-70 mb-1" id="lblA">메뉴 A</p>
                     <p class="text-xl font-black text-gray-900" id="valA">0.0kg</p>
                 </div>
-                <div id="cardB" class="glass-ui p-5 text-center text-gray-800 relative cursor-pointer" onclick="selectTodayMenu('B')">
+                <div id="cardB" class="glass-ui p-5 text-center text-gray-800 relative cursor-pointer">
                     <p class="text-xs opacity-70 mb-1" id="lblB">메뉴 B</p>
                     <p class="text-xl font-black text-gray-900" id="valB">0.0kg</p>
                 </div>
@@ -175,21 +177,75 @@
             </div>
         </div>
 
+
+        <div id="page-recommend-input" class="hidden glass-ui p-6 space-y-6">
+            <div class="text-center">
+                <span class="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">음식 추천 서비스</span>
+                <h2 class="text-lg font-black text-gray-800 mt-2">고민되는 두 음식 선택</h2>
+                <p class="text-[11px] text-gray-500 mt-1">두 메뉴 중 탄소 배출량이 더 낮은 친환경 음식을 추천해 드립니다.</p>
+            </div>
+            
+            <div class="space-y-3">
+                <select id="recMenu1" class="w-full p-3 rounded-xl bg-white/60 text-gray-800 text-sm outline-none border border-white/20">
+                    <option value="">고민되는 첫번째 음식 이름</option>
+                </select>
+                <select id="recMenu2" class="w-full p-3 rounded-xl bg-white/60 text-gray-800 text-sm outline-none border border-white/20">
+                    <option value="">고민되는 두번째 음식 이름</option>
+                </select>
+            </div>
+
+            <div class="space-y-2">
+                <button onclick="getFoodRecommendation()" class="w-full py-4 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-2xl shadow-md transition">
+                    더 착한 친환경 메뉴 추천받기
+                </button>
+                <button onclick="switchPage('page-1')" class="w-full py-2 bg-gray-400/20 hover:bg-gray-400/30 text-gray-700 text-xs font-semibold rounded-xl transition">
+                    ◀ 처음 화면으로 돌아가기
+                </button>
+            </div>
+        </div>
+
+
+        <div id="page-recommend-result" class="hidden glass-ui p-6 space-y-6 text-center">
+            <div>
+                <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">추천 완료</span>
+                <h2 class="text-lg font-black text-gray-800 mt-2">지구를 위한 더 나은 선택</h2>
+            </div>
+
+            <div class="bg-white/60 rounded-2xl p-4 border border-white/40 space-y-2 text-left text-sm text-gray-700">
+                <p>📋 <span id="recLabel1" class="font-semibold">음식 1</span>: <span id="recVal1" class="font-bold text-gray-900">0.0kg</span></p>
+                <p>📋 <span id="recLabel2" class="font-semibold">음식 2</span>: <span id="recVal2" class="font-bold text-gray-900">0.0kg</span></p>
+            </div>
+
+            <div class="glass-ui p-5 bg-emerald-50/50 border border-emerald-200 rounded-2xl">
+                <h3 id="recommendationResultMsg" class="text-base font-black text-emerald-800 leading-relaxed"></h3>
+            </div>
+
+            <div class="flex space-x-2">
+                <button onclick="switchPage('page-recommend-input')" class="w-1/2 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition hover:bg-gray-300">
+                    ◀ 다시 고르기
+                </button>
+                <button onclick="location.reload()" class="w-1/2 py-3 bg-gray-800 text-white font-bold rounded-xl text-xs transition hover:bg-gray-900">
+                    처음으로 🔄
+                </button>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        let db = {}; // 서버 데이터베이스 연동 공간
+        let db = {}; 
         let currentScores = { A: 0, B: 0 };
-        // 💡 단일 메뉴 선택 변수(finalTodaySelection)는 총합 비교로 바뀌면서 더 이상 사용하지 않으므로 제거했습니다.
+        let currentMode = 'calculator'; // 'calculator' 또는 'recommendation' 구분 플래그
 
-        // 내부 네비게이션 변환 함수
         function switchPage(pageId) {
-            const pages = ['page-1', 'page-2', 'page-3', 'page-4', 'page-5'];
+            const pages = ['page-1', 'page-2', 'page-3', 'page-4', 'page-5', 'page-recommend-input', 'page-recommend-result'];
             pages.forEach(p => document.getElementById(p).classList.add('hidden'));
             document.getElementById(pageId).classList.remove('hidden');
         }
 
-        function triggerFileUpload() {
+        // 메인 진입 모드 세팅용 함수 변경
+        function triggerFileUpload(mode) {
+            currentMode = mode;
             document.getElementById("hiddenFileInput").click();
         }
 
@@ -207,24 +263,26 @@
                 if(data.error) { alert(data.error); return; }
 
                 db = data.db;
-                updateDropdownOptions();
-                // if (data.is_fallback) {
-                //     alert("⚠️ 매칭된 메뉴를 인식하지 못했습니다.\n전체 메뉴판을 불러옵니다. 수동으로 메뉴를 선택해주세요!");
-                // }
-                switchPage('page-2'); 
+                
+                // 선택한 모드(계산기 vs 추천)에 맞춰 분기 이동 및 드롭다운 연동
+                if(currentMode === 'calculator') {
+                    updateDropdownOptions(['menuA', 'menuB'], ['첫 번째 메뉴 선택', '두 번째 메뉴 선택']);
+                    switchPage('page-2'); 
+                } else {
+                    updateDropdownOptions(['recMenu1', 'recMenu2'], ['고민되는 첫번째 음식 이름', '고민되는 두번째 음식 이름']);
+                    switchPage('page-recommend-input');
+                }
             })
             .catch(err => {
                 alert("서버 연결에 실패했습니다.");
             });
         }
 
-        // 셀렉트 드롭다운 옵션 동적 동기화
-        function updateDropdownOptions() {
-            const dropdownIds = ['menuA', 'menuB'];
-            dropdownIds.forEach(id => {
+        // 셀렉트 드롭다운 인자 유연화 수정
+        function updateDropdownOptions(elementIds, defaultTexts) {
+            elementIds.forEach((id, idx) => {
                 const el = document.getElementById(id);
-                const defaultText = el.options[0].text;
-                el.innerHTML = `<option value="">${defaultText}</option>`;
+                el.innerHTML = `<option value="">${defaultTexts[idx]}</option>`;
                 
                 Object.keys(db).forEach(name => {
                     el.add(new Option(name, name));
@@ -232,7 +290,7 @@
             });
         }
 
-        // [1번 기능 실행] 순수 각각 배출량 및 총합산 연동 수식 + 고탄소 테마 제어
+        // [기존 1번 계산기 기능]
         function calculateTotalCarbon() {
             const mA = document.getElementById('menuA').value;
             const mB = document.getElementById('menuB').value;
@@ -246,17 +304,14 @@
             document.getElementById('lblB').innerText = mB;
             document.getElementById('valB').innerText = currentScores.B + "kg";
 
-            // 두 메뉴의 탄소 배출량 총합 계산
             const totalSum = parseFloat((currentScores.A + currentScores.B).toFixed(2));
             document.getElementById('totalCarbonDisplay').innerText = totalSum.toFixed(2) + "kg";
 
-            // DOM 요소 미리 가져오기
             const bg = document.getElementById('background-container');
             const cA = document.getElementById('cardA');
             const cB = document.getElementById('cardB');
             const backBtn = document.getElementById('backToPage2Btn');
 
-            // 💡 새로운 데이터 기준: 오늘 한 끼 총합이 5.5kg 이상일 때 환경 오염(다크) 테마 발동
             if (totalSum >= 5.5) { 
                 bg.classList.add('polluted-bg');
                 document.getElementById('page3-title').className = "text-lg font-black text-white mt-2";
@@ -272,7 +327,6 @@
               
                 backBtn.className = "w-full py-3 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-xl transition-all border border-white/10";
             } else {
-                // 일반 친환경 테마 유지
                 bg.classList.remove('polluted-bg');
                 document.getElementById('page3-title').className = "text-lg font-black text-gray-800 mt-2";
                 document.getElementById('page3-sub').className = "text-[11px] text-gray-600 mt-1";
@@ -288,23 +342,19 @@
                 backBtn.className = "w-full py-3 bg-gray-400/20 hover:bg-gray-400/30 text-gray-700 text-xs font-semibold rounded-xl transition-all";
             }
 
-            // 카드의 초록색 테두리 선택 마킹 초기화
             cA.style.borderColor = 'rgba(255, 255, 255, 0.6)';
             cB.style.borderColor = 'rgba(255, 255, 255, 0.6)';
 
             switchPage('page-3'); 
         }
 
-        // STEP 03: 내일의 식단 선택 페이지로 이동
         function goToPage4() {
-            // 배경 다크테마가 적용되어 있었다면 페이지 이동 전 다음 페이지 시각 효과를 위해 클린업
             document.getElementById('background-container').classList.remove('polluted-bg');
 
             const todayTotalScore = (currentScores.A + currentScores.B).toFixed(2);
             const mA = document.getElementById('menuA').value;
             const mB = document.getElementById('menuB').value;
             
-            // 🍽️ 오늘의 최종 식단 텍스트 영역을 '두 메뉴의 총합 조합'으로 매칭
             document.getElementById('myTodaySelection').innerText = `${mA} + ${mB} (총 ${todayTotalScore}kg)`;
             
             const tomorrowSelect = document.getElementById('tomorrowMenu');
@@ -317,7 +367,6 @@
             switchPage('page-4'); 
         }
 
-        // FINAL REPORT: 최종 오늘 총량 vs 내일 식단 비교 페이지로 이동
         function goToPage5() {
             const tomorrowMenuName = document.getElementById('tomorrowMenu').value;
             if(!tomorrowMenuName) return alert("내일 실천할 식단 메뉴를 선택해주세요!");
@@ -325,13 +374,11 @@
             const todayTotalScore = parseFloat((currentScores.A + currentScores.B).toFixed(2));
             const tomorrowScore = db[tomorrowMenuName];
             
-            // 오늘 식단 총량 - 내일 메뉴 탄소량 = 절감량 계산
             const reduction = (todayTotalScore - tomorrowScore).toFixed(2);
 
             const mA = document.getElementById('menuA').value;
             const mB = document.getElementById('menuB').value;
             
-            // 레포트 카드 텍스트 바인딩
             document.getElementById('finalTodayName').innerText = `${mA} + ${mB}`;
             document.getElementById('finalTodayVal').innerText = todayTotalScore.toFixed(2) + "kg";
             document.getElementById('finalTomorrowName').innerText = tomorrowMenuName;
@@ -347,6 +394,38 @@
             }
 
             switchPage('page-5'); 
+        }
+
+
+        // ★ 신규 추가 NEW FUNCTION: 고민되는 두 음식 비교 및 추천 비즈니스 로직 ★
+        function getFoodRecommendation() {
+            const f1 = document.getElementById('recMenu1').value;
+            const f2 = document.getElementById('recMenu2').value;
+
+            if(!f1 || !f2) return alert("고민되는 두 메뉴를 모두 선택해주세요!");
+
+            const value1 = db[f1] || 0;
+            const value2 = db[f2] || 0;
+
+            document.getElementById('recLabel1').innerText = f1;
+            document.getElementById('recVal1').innerText = value1.toFixed(1) + "kg";
+            document.getElementById('recLabel2').innerText = f2;
+            document.getElementById('recVal2').innerText = value2.toFixed(1) + "kg";
+
+            const msgEl = document.getElementById('recommendationResultMsg');
+
+            // 제공해주신 스크립트 기반 추천 연산 매칭
+            if (value1 < value2) {
+                const diff = (value2 - value1).toFixed(2);
+                msgEl.innerHTML = `추천 음식: <span class="text-lg font-black text-purple-700 font-extrabold">[${f1}]</span><br>탄소 배출량이 <span class="text-emerald-600 font-bold">${diff}kg</span>만큼 더 낮아 <span class="underline">${f1}</span>을(를) 추천합니다! 🌱`;
+            } else if (value2 < value1) {
+                const diff = (value1 - value2).toFixed(2);
+                msgEl.innerHTML = `추천 음식: <span class="text-lg font-black text-purple-700 font-extrabold">[${f2}]</span><br>탄소 배출량이 <span class="text-emerald-600 font-bold">${diff}kg</span>만큼 더 낮아 <span class="underline">${f2}</span>을(를) 추천합니다! 🌱`;
+            } else {
+                msgEl.innerHTML = `두 음식의 탄소 배출량이 <span class="font-bold text-gray-700">${value1.toFixed(1)}kg</span>으로 동일합니다. 😊`;
+            }
+
+            switchPage('page-recommend-result');
         }
     </script>
 </body>
