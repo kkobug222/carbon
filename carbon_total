@@ -1,0 +1,60 @@
+import sqlite3
+
+conn = sqlite3.connect("food.db")
+cursor = conn.cursor()
+
+
+food1 = input("첫 번째 음식 이름: ")
+food2 = input("두 번째 음식 이름: ")
+
+# 첫번째 음식 값 조회
+cursor.execute("SELECT value FROM food WHERE name = ?", (food1,))
+result1 = cursor.fetchone()
+
+# 두번째 음식 값 조회
+cursor.execute("SELECT value FROM food WHERE name = ?", (food2,))
+result2 = cursor.fetchone()
+
+# 값 존재 확인
+if result1 is None:
+    print(food1, "데이터가 없습니다.")
+elif result2 is None:
+    print(food2, "데이터가 없습니다.")
+else:
+    # 값 꺼내기
+    value1 = result1[0]
+    value2 = result2[0]
+
+    # 합
+    total = value1 + value2
+
+    print(f"{food1}: {value1}")
+    print(f"{food2}: {value2}")
+    print("메뉴의 탄소배출 총 합은:", total,"입니다.")
+
+
+new_food1 = input("고민되는 첫번째 음식 이름 : ")
+new_food2 = input("고민되는 두번째 음식 이름 : ")
+
+cursor.execute("SELECT value FROM food WHERE name = ?", (new_food1,))
+result3 = cursor.fetchone()
+
+cursor.execute("SELECT value FROM food WHERE name = ?", (new_food2,))
+result4 = cursor.fetchone()
+
+if result3 is None:
+    print(new_food1, "데이터가 없습니다.")
+elif result4 is None:
+    print(new_food2, "데이터가 없습니다.")
+else:
+    value3 = result3[0]
+    value4 = result4[0]
+
+    if value3 < value4:
+        print(f"추천 음식: {new_food1} 이/가 탄소배출량이", value4 - value3,"만큼 더 낮아",{new_food1}, "을/를 추천합니다.")
+    elif value4 < value3:
+        print(f"추천 음식: {new_food2} 이/가 탄소배출량이", value3 - value4,"만큼 더 낮아",{new_food2}, "을/를 추천합니다.")
+    else:
+        print("두 음식의 탄소 배출량이 같습니다.")
+    
+conn.close()
