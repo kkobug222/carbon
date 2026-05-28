@@ -5,6 +5,8 @@ import sqlite3
 import os
 import warnings
 
+#r가상환경이름은 carbon
+
 app = Flask(__name__)
 
 # 파일 업로드를 위한 임시 폴더 설정

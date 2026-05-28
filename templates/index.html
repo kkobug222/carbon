@@ -249,17 +249,17 @@
             document.getElementById("hiddenFileInput").click();
         }
         
-        // 🛠️ 사진 업로드 없이 백엔드 전체 DB 데이터를 바로 가져오는 추천 서비스 진입 함수
+        
         function startRecommendMode() {
             currentMode = 'recommendation';
             document.getElementById('status').innerText = "⏳ 전체 메뉴판 데이터를 불러오는 중...";
 
-    // 백엔드로 빈 요청을 보내 인식에 실패했을 때 나오는 전체 메뉴판(Fallback 데이터)을 강제로 요청합니다.
+    // 백엔드로 빈 요청을 보내 인식에 실패했을 때 나오는 전체 메뉴판(Fallback 데이터)을 강제로 요청
             fetch("/upload-receipt", { method: "POST", body: new FormData() })
             .then(res => res.json())
             .then(data => {
                 if (data.db) {
-            // 서버가 준 전체 메뉴 데이터를 db 변수에 담고 드롭다운을 채웁니다.
+
                     db = data.db; 
                     updateDropdownOptions(['recMenu1', 'recMenu2'], ['고민되는 첫번째 음식 이름', '고민되는 두번째 음식 이름']);
                     switchPage('page-recommend-input'); // ➔ 바로 추천 메뉴 선택창으로 이동!
@@ -285,13 +285,13 @@
             fetch("/upload-receipt", { method: "POST", body: formData })
             .then(res => res.json())
             .then(data => {
-                if(data.error) { alert(data.error); return; }
+                if(data.error) { alert(data.error); return;}
 
                 db = data.db;
                 
-                // 선택한 모드(계산기 vs 추천)에 맞춰 분기 이동 및 드롭다운 연동
+                
                 if(currentMode === 'calculator') {
-                    // 1) 탄소 계산기 모드일 때는 원래 작성하신 대로 영수증 인식 결과(data.db)만 사용!
+                    
                     db = data.db; 
                     updateDropdownOptions(['menuA', 'menuB'], ['첫 번째 메뉴 선택', '두 번째 메뉴 선택']);
                     switchPage('page-2'); 
