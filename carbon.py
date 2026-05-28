@@ -73,8 +73,21 @@ def index():
 
 @app.route('/upload-receipt', methods=['POST'])
 def upload():
-    if 'file' not in request.files:
-        return jsonify({"error": "업로드된 파일이 없습니다."}), 400
+    if 'file' not in request.files or request.files['file'].filename == '':
+        con = sqlite3.connect('food.db')
+        cur = con.cursor()
+        cur.execute("SELECT name, co2 FROM food")
+        rows = cur.fetchall()
+        cur.close()
+        con.close()
+
+        all_menu_db = {row[0]: row[1] for row in rows}
+        return jsonify({
+            "success": True, 
+            "db": all_menu_db,
+            "is_fallback": True
+        })
+    
         
     file = request.files['file']
     if file.filename == '':

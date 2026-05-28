@@ -42,7 +42,7 @@
                 <button onclick="triggerFileUpload('calculator')" class="w-full py-4 bg-white text-green-600 rounded-full font-bold shadow-md hover:bg-green-50 transition">
                     📷 탄소 계산기 (총합 합산)
                 </button>
-                <button onclick="triggerFileUpload('recommendation')" class="w-full py-4 bg-white text-purple-600 rounded-full font-bold shadow-md hover:bg-purple-50 transition">
+                <button onclick="startRecommendMode()" class="w-full py-4 bg-white text-purple-600 rounded-full font-bold shadow-md hover:bg-purple-50 transition">
                 🤖 추천 서비스 (음식 비교)
                 </button>
             </div>
@@ -247,6 +247,31 @@
         function triggerFileUpload(mode) {
             currentMode = mode;
             document.getElementById("hiddenFileInput").click();
+        }
+        
+        // 🛠️ 사진 업로드 없이 백엔드 전체 DB 데이터를 바로 가져오는 추천 서비스 진입 함수
+        function startRecommendMode() {
+            currentMode = 'recommendation';
+            document.getElementById('status').innerText = "⏳ 전체 메뉴판 데이터를 불러오는 중...";
+
+    // 백엔드로 빈 요청을 보내 인식에 실패했을 때 나오는 전체 메뉴판(Fallback 데이터)을 강제로 요청합니다.
+            fetch("/upload-receipt", { method: "POST", body: new FormData() })
+            .then(res => res.json())
+            .then(data => {
+                if (data.db) {
+            // 서버가 준 전체 메뉴 데이터를 db 변수에 담고 드롭다운을 채웁니다.
+                    db = data.db; 
+                    updateDropdownOptions(['recMenu1', 'recMenu2'], ['고민되는 첫번째 음식 이름', '고민되는 두번째 음식 이름']);
+                    switchPage('page-recommend-input'); // ➔ 바로 추천 메뉴 선택창으로 이동!
+                } else {
+                    alert("데이터를 가져오지 못했습니다.");
+                }
+                document.getElementById('status').innerText = "";
+            })
+            .catch(err => {
+                alert("서버 연결에 실패했습니다.");
+                document.getElementById('status').innerText = "";
+            });
         }
 
         function handleFileSelected(input) {
