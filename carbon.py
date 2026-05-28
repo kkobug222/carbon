@@ -85,6 +85,15 @@ def upload():
         file.save(file_path)
 
         try:
+
+            con = sqlite3.connect('food.db')
+            cur = con.cursor()
+            cur.execute("SELECT name, co2 FROM food")
+            all_rows = cur.fetchall()
+            cur.close()
+            con.close()
+            all_food_db = {row[0]: row[1] for row in all_rows}
+
             # EasyOCR 실행 및 분석
             result = reader.readtext(file_path)
             
@@ -132,6 +141,7 @@ def upload():
             return jsonify({
                 "success": True, 
                 "db": detected_menu_db,
+                "all_db": all_food_db,
                 "is_fallback": is_fallback_flag
             })
 

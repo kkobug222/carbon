@@ -43,7 +43,7 @@
                     📷 탄소 계산기 (총합 합산)
                 </button>
                 <button onclick="triggerFileUpload('recommendation')" class="w-full py-4 bg-white text-purple-600 rounded-full font-bold shadow-md hover:bg-purple-50 transition">
-                    🤖 추천 서비스 (음식 비교)
+                🤖 추천 서비스 (음식 비교)
                 </button>
             </div>
             <p id="status" class="text-[11px] text-gray-400 font-medium mt-2"></p>
@@ -266,9 +266,12 @@
                 
                 // 선택한 모드(계산기 vs 추천)에 맞춰 분기 이동 및 드롭다운 연동
                 if(currentMode === 'calculator') {
+                    // 1) 탄소 계산기 모드일 때는 원래 작성하신 대로 영수증 인식 결과(data.db)만 사용!
+                    db = data.db; 
                     updateDropdownOptions(['menuA', 'menuB'], ['첫 번째 메뉴 선택', '두 번째 메뉴 선택']);
                     switchPage('page-2'); 
                 } else {
+                    db = data.all_db; 
                     updateDropdownOptions(['recMenu1', 'recMenu2'], ['고민되는 첫번째 음식 이름', '고민되는 두번째 음식 이름']);
                     switchPage('page-recommend-input');
                 }
@@ -397,7 +400,7 @@
         }
 
 
-        // ★ 신규 추가 NEW FUNCTION: 고민되는 두 음식 비교 및 추천 비즈니스 로직 ★
+       
         function getFoodRecommendation() {
             const f1 = document.getElementById('recMenu1').value;
             const f2 = document.getElementById('recMenu2').value;
