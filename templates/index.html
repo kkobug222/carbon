@@ -24,6 +24,21 @@
             background: rgba(0, 0, 0, 0.3) !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
         }
+
+        /* 게임 떨어지는 단어 스타일 */
+        .falling-word {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #16a34a;
+            color: #15803d;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+            white-space: nowrap;
+            user-select: none;
+        }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
@@ -34,6 +49,7 @@
 
     <div class="w-full max-w-md space-y-4">
 
+        <!-- PAGE 1: 메인 메뉴 -->
         <div id="page-1" class="glass-ui p-8 text-center space-y-6">
             <div class="text-5xl">🌱</div>
             <h2 class="text-xl font-bold text-gray-800">Carbon Green</h2>
@@ -43,13 +59,18 @@
                     📷 탄소 계산기 (총합 합산)
                 </button>
                 <button onclick="startRecommendMode()" class="w-full py-4 bg-white text-purple-600 rounded-full font-bold shadow-md hover:bg-purple-50 transition">
-                🤖 추천 서비스 (음식 비교)
+                    🤖 추천 서비스 (음식 비교)
+                </button>
+                <!-- 분리수거 타자 게임 버튼 -->
+                <button onclick="startRecycleGameMode()" class="w-full py-4 bg-white text-emerald-600 rounded-full font-bold shadow-md hover:bg-emerald-50 transition">
+                    🎮 분리수거 타자 게임
                 </button>
             </div>
             <p id="status" class="text-[11px] text-gray-400 font-medium mt-2"></p>
         </div>
 
 
+        <!-- PAGE 2: 계산기 메뉴 선택 -->
         <div id="page-2" class="hidden glass-ui p-6 space-y-6">
             <div class="text-center">
                 <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">탄소 계산기</span>
@@ -77,6 +98,7 @@
         </div>
 
 
+        <!-- PAGE 3: 탄소계산 결과 -->
         <div id="page-3" class="hidden space-y-4 w-full">
             <div class="text-center mb-2">
                 <span class="text-xs font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full">계산 결과</span>
@@ -114,6 +136,7 @@
             </div>
         </div>
 
+        <!-- PAGE 4: 내일 식단 선택 -->
         <div id="page-4" class="hidden glass-ui p-6 space-y-6">
             <div class="text-center">
                 <span class="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">STEP 03</span>
@@ -143,6 +166,7 @@
         </div>
 
 
+        <!-- PAGE 5: 탄소 절감 레포트 -->
         <div id="page-5" class="hidden space-y-4 w-full">
             <div class="text-center mb-2">
                 <span class="text-xs font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full">FINAL REPORT</span>
@@ -178,6 +202,7 @@
         </div>
 
 
+        <!-- RECOMMEND INPUT -->
         <div id="page-recommend-input" class="hidden glass-ui p-6 space-y-6">
             <div class="text-center">
                 <span class="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">음식 추천 서비스</span>
@@ -205,6 +230,7 @@
         </div>
 
 
+        <!-- RECOMMEND RESULT -->
         <div id="page-recommend-result" class="hidden glass-ui p-6 space-y-6 text-center">
             <div>
                 <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">추천 완료</span>
@@ -230,39 +256,153 @@
             </div>
         </div>
 
+        <!-- PAGE - RECYCLE GAME (분리수거 산성비 게임 페이지) -->
+        <div id="page-game" class="hidden glass-ui p-5 space-y-4 w-full relative">
+            <div class="flex justify-between items-center bg-emerald-600/10 px-4 py-2 rounded-xl border border-emerald-500/20">
+                <span class="text-xs font-bold text-emerald-800">♻️ 분리수거 게임</span>
+                <span class="text-xs font-bold text-emerald-900">점수: <span id="gameScore" class="text-base text-emerald-600">0</span>점</span>
+            </div>
+
+            <!-- 떨어지는 영역 -->
+            <div id="gameCanvas" class="relative w-full h-[320px] bg-white/40 rounded-2xl border border-white/60 overflow-hidden"></div>
+
+            <!-- 타자 입력창 -->
+            <div class="space-y-2">
+                <input type="text" id="gameInput" placeholder="분리수거 카테고리 입력 (예: 일반쓰레기)" class="w-full p-3 rounded-xl bg-white/80 text-gray-800 text-sm outline-none border border-emerald-300 focus:border-emerald-500 transition" autocomplete="off">
+                <div class="flex justify-between text-[10px] text-gray-500 px-1">
+                    <span>💡 입력: 일반쓰레기, 음식물쓰레기, 플라스틱, 비닐, 종이, 캔, 유리</span>
+                </div>
+            </div>
+
+            <button onclick="exitGameToHome()" class="w-full py-2 bg-gray-400/20 hover:bg-gray-400/30 text-gray-700 text-xs font-semibold rounded-xl transition">
+                ◀ 메인으로 돌아가기
+            </button>
+        </div>
+
+    </div>
+
+    <!-- GAME INSTRUCTION MODAL (게임 설명 모달 팝업) -->
+    <div id="gameInstructionModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
+            <h3 class="text-xl font-black text-emerald-600">🎮 게임 설명</h3>
+            
+            <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-left text-xs space-y-2 text-gray-700 leading-relaxed">
+                <p>1. 위에서 떨어지는 쓰레기 이름을 확인하세요.</p>
+                <p>2. 올바른 <strong>분리수거 카테고리</strong>를 입력창에 입력하고 엔터를 누르세요.</p>
+                <p class="text-[11px] text-gray-500 pl-3">
+                    💡 입력예시: <span class="font-bold text-emerald-700">일반쓰레기, 음식물쓰레기, 플라스틱, 비닐, 종이, 캔, 유리</span>
+                </p>
+                <p>3. 쓰레기가 바닥에 닿거나 틀린 카테고리를 입력하면 게임이 종료됩니다!</p>
+            </div>
+
+            <div class="pt-2">
+                <p class="text-xs text-gray-400 animate-pulse">⌨️ <strong>[Spacebar]</strong> 키를 누르면 게임이 시작됩니다!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME OVER MODAL (게임 종료/오답 팝업) -->
+    <div id="gameOverModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
+            <h3 id="gameModalTitle" class="text-xl font-black text-red-600">게임 종료!</h3>
+            <p id="gameModalSubtitle" class="text-xs text-gray-500">올바르지 않은 입력이거나 쓰레기를 놓쳤습니다.</p>
+            
+            <div class="bg-amber-50 border-l-4 border-amber-400 p-3 rounded-r-xl text-left text-xs space-y-1">
+                <p>🗑️ <strong>쓰레기:</strong> <span id="modalWasteName" class="font-bold">-</span></p>
+                <p>✅ <strong>올바른 분리수거:</strong> <span id="modalCorrectCat" class="font-bold text-emerald-600">-</span></p>
+                <p class="text-gray-600 pt-1 border-t border-amber-200/60 mt-1">💡 <span id="modalReason">-</span></p>
+            </div>
+
+            <p class="text-sm font-bold text-gray-700">최종 점수: <span id="modalFinalScore" class="text-emerald-600 text-base">0</span>점</p>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="prepareGame()" class="w-1/2 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow">
+                    🔄 RETRY
+                </button>
+                <button onclick="exitGameToHome()" class="w-1/2 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-xs rounded-xl transition">
+                    🚪 QUIT
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
         let db = {}; 
         let currentScores = { A: 0, B: 0 };
-        let currentMode = 'calculator'; // 'calculator' 또는 'recommendation' 구분 플래그
+        let currentMode = 'calculator';
+
+        // ------------------------------------
+        // 게임 관련 데이터 및 상태 변수
+        // ------------------------------------
+        const quizData = [
+            { name: "귤껍질", category: "음식물쓰레기", reason: "동물의 사료나 퇴비로 활용할 수 있어 음식물쓰레기로 배출합니다." },
+            { name: "바나나껍질", category: "음식물쓰레기", reason: "쉽게 분해되어 사료나 퇴비로 재활용할 수 있습니다." },
+            { name: "바나나 꼭지", category: "일반쓰레기", reason: "섬유질이 많아 쉽게 분해되지 않습니다." },
+            { name: "파인애플 껍질", category: "일반쓰레기", reason: "질기고 단단해 음식물쓰레기로 처리할 수 없습니다." },
+            { name: "코코넛 껍질", category: "일반쓰레기", reason: "매우 단단해 사료나 퇴비로 활용하기 어렵습니다." },
+            { name: "복숭아 씨", category: "일반쓰레기", reason: "단단한 씨앗은 음식물쓰레기로 처리하지 않습니다." },
+            { name: "체리 씨", category: "일반쓰레기", reason: "씨앗류는 분해가 어려워 일반쓰레기입니다." },
+            { name: "아보카도 씨", category: "일반쓰레기", reason: "큰 씨앗은 사료화가 불가능합니다." },
+            { name: "호두껍데기", category: "일반쓰레기", reason: "딱딱한 껍데기는 음식물쓰레기 대상이 아닙니다." },
+            { name: "밤껍질", category: "일반쓰레기", reason: "껍질이 질겨 쉽게 분해되지 않습니다." },
+            { name: "옥수수대", category: "일반쓰레기", reason: "섬유질이 많아 음식물 처리시설에서 처리하기 어렵습니다." },
+            { name: "양파껍질", category: "일반쓰레기", reason: "질긴 껍질은 퇴비화가 어렵습니다." },
+            { name: "마늘껍질", category: "일반쓰레기", reason: "섬유질이 많아 음식물쓰레기로 배출하지 않습니다." },
+            { name: "대파 뿌리", category: "일반쓰레기", reason: "뿌리 부분은 질겨 분해가 어렵습니다." },
+            { name: "달걀껍데기", category: "일반쓰레기", reason: "껍데기는 사료나 퇴비로 사용할 수 없습니다." },
+            { name: "조개껍데기", category: "일반쓰레기", reason: "단단한 껍데기는 음식물쓰레기로 처리하지 않습니다." },
+            { name: "게 껍데기", category: "일반쓰레기", reason: "갑각류 껍데기는 분해되지 않습니다." },
+            { name: "새우껍질", category: "일반쓰레기", reason: "껍질은 음식물 처리시설에서 처리하기 어렵습니다." },
+            { name: "생선 가시", category: "일반쓰레기", reason: "뼈와 가시는 분해되지 않아 일반쓰레기입니다." },
+            { name: "닭뼈", category: "일반쓰레기", reason: "단단한 뼈는 음식물쓰레기 대상이 아닙니다." },
+            { name: "커피 찌꺼기", category: "일반쓰레기", reason: "사료화가 어려워 일반쓰레기로 분류됩니다." },
+            { name: "티백", category: "일반쓰레기", reason: "합성섬유나 플라스틱 성분이 포함된 경우가 많습니다." },
+            { name: "피자 상자(기름 묻음)", category: "일반쓰레기", reason: "기름에 오염된 종이는 재활용이 어렵습니다." },
+            { name: "종이컵", category: "일반쓰레기", reason: "코팅과 오염으로 인해 재활용이 어렵습니다." },
+            { name: "영수증", category: "일반쓰레기", reason: "감열지는 일반 종이와 함께 재활용할 수 없습니다." },
+            { name: "깨진 유리컵", category: "일반쓰레기", reason: "유리병과 재질이 달라 재활용이 불가능합니다." },
+            { name: "유리병", category: "유리", reason: "내용물을 비우면 유리병으로 재활용할 수 있습니다." },
+            { name: "칫솔", category: "일반쓰레기", reason: "여러 재질이 결합되어 분리배출이 어렵습니다." },
+            { name: "과자 봉지", category: "비닐", reason: "내용물을 비우면 비닐류로 재활용할 수 있습니다." },
+            { name: "라면 봉지", category: "비닐", reason: "국물과 음식물을 제거하면 비닐류입니다." },
+            { name: "비닐 쇼핑백", category: "비닐", reason: "깨끗한 비닐은 재활용이 가능합니다." },
+            { name: "에어캡(뽁뽁이)", category: "비닐", reason: "테이프를 제거하면 비닐류로 배출합니다." },
+            { name: "랩", category: "일반쓰레기", reason: "오염이 심하고 재활용이 어렵습니다." },
+            { name: "음료 캔", category: "캔", reason: "내용물을 비우고 압착하면 재활용됩니다." },
+            { name: "참치캔", category: "캔", reason: "내용물을 비우고 씻어서 배출합니다." },
+            { name: "부탄가스", category: "캔", reason: "가스를 완전히 비운 후 캔류로 배출합니다." },
+            { name: "스프레이 캔", category: "캔", reason: "내용물을 모두 사용한 뒤 배출해야 합니다." }
+        ];
+
+        let gameScore = 0;
+        let isGameRunning = false;
+        let isWaitingForStart = false; // 스페이스바 대기 상태 플래그
+        let fallingItems = [];
+        let spawnTimer = null;
+        let animFrameId = null;
 
         function switchPage(pageId) {
-            const pages = ['page-1', 'page-2', 'page-3', 'page-4', 'page-5', 'page-recommend-input', 'page-recommend-result'];
+            const pages = ['page-1', 'page-2', 'page-3', 'page-4', 'page-5', 'page-recommend-input', 'page-recommend-result', 'page-game'];
             pages.forEach(p => document.getElementById(p).classList.add('hidden'));
             document.getElementById(pageId).classList.remove('hidden');
         }
 
-        // 메인 진입 모드 세팅용 함수 변경
         function triggerFileUpload(mode) {
             currentMode = mode;
             document.getElementById("hiddenFileInput").click();
         }
         
-        
         function startRecommendMode() {
             currentMode = 'recommendation';
             document.getElementById('status').innerText = "⏳ 전체 메뉴판 데이터를 불러오는 중...";
 
-    // 백엔드로 빈 요청을 보내 인식에 실패했을 때 나오는 전체 메뉴판(Fallback 데이터)을 강제로 요청
             fetch("/upload-receipt", { method: "POST", body: new FormData() })
             .then(res => res.json())
             .then(data => {
                 if (data.db) {
-
                     db = data.db; 
                     updateDropdownOptions(['recMenu1', 'recMenu2'], ['고민되는 첫번째 음식 이름', '고민되는 두번째 음식 이름']);
-                    switchPage('page-recommend-input'); // ➔ 바로 추천 메뉴 선택창으로 이동!
+                    switchPage('page-recommend-input');
                 } else {
                     alert("데이터를 가져오지 못했습니다.");
                 }
@@ -274,6 +414,173 @@
             });
         }
 
+        // ------------------------------------
+        // 게임 모드 진입 및 대기/실행 로직
+        // ------------------------------------
+        function startRecycleGameMode() {
+            switchPage('page-game');
+            prepareGame();
+        }
+
+        // 1. 게임판 초기화 및 '설명창' 띄우기
+        function prepareGame() {
+            document.getElementById('gameOverModal').classList.add('hidden');
+            document.getElementById('gameInstructionModal').classList.remove('hidden'); // 설명 팝업 표시
+            
+            const canvas = document.getElementById('gameCanvas');
+            const gameInput = document.getElementById('gameInput');
+
+            gameScore = 0;
+            document.getElementById('gameScore').innerText = gameScore;
+            canvas.innerHTML = '';
+            fallingItems = [];
+            
+            isGameRunning = false;
+            isWaitingForStart = true; // 스페이스바 대기 시작
+
+            gameInput.disabled = true; // 대기 상태에서는 인풋창 차단
+            gameInput.value = '';
+
+            if(spawnTimer) clearInterval(spawnTimer);
+            if(animFrameId) cancelAnimationFrame(animFrameId);
+        }
+
+        // 2. 스페이스바 눌렀을 때 실제 게임 동작 시작
+        function runGame() {
+            isWaitingForStart = false;
+            document.getElementById('gameInstructionModal').classList.add('hidden'); // 설명 팝업 숨김
+
+            const gameInput = document.getElementById('gameInput');
+            gameInput.disabled = false;
+            gameInput.focus();
+
+            isGameRunning = true;
+
+            // 단어 생성 및 애니메이션 시작 (3초 주기)
+            if(spawnTimer) clearInterval(spawnTimer);
+            spawnTimer = setInterval(spawnWord, 3000);
+            spawnWord();
+
+            if(animFrameId) cancelAnimationFrame(animFrameId);
+            animFrameId = requestAnimationFrame(updateGame);
+        }
+
+        function spawnWord() {
+            if (!isGameRunning) return;
+
+            const randomQuiz = quizData[Math.floor(Math.random() * quizData.length)];
+            const canvas = document.getElementById('gameCanvas');
+            
+            const element = document.createElement('div');
+            element.className = 'falling-word';
+            element.textContent = randomQuiz.name;
+
+            const maxX = Math.max(0, canvas.clientWidth - 110);
+            const randomX = Math.floor(Math.random() * maxX);
+            element.style.left = `${randomX}px`;
+            element.style.top = '0px';
+
+            canvas.appendChild(element);
+
+            fallingItems.push({
+                element: element,
+                data: randomQuiz,
+                y: 0,
+                speed: 1.0 + Math.random() * 0.5
+            });
+        }
+
+        function updateGame() {
+            if (!isGameRunning) return;
+
+            const canvas = document.getElementById('gameCanvas');
+            const maxHeight = canvas.clientHeight - 32;
+
+            for (let i = 0; i < fallingItems.length; i++) {
+                const item = fallingItems[i];
+                item.y += item.speed;
+                item.element.style.top = `${item.y}px`;
+
+                // 바닥 도달 시 게임 오버
+                if (item.y >= maxHeight) {
+                    endGame(item.data, "바닥에 닿기 전에 분리수거를 완료하지 못했습니다!");
+                    return;
+                }
+            }
+
+            animFrameId = requestAnimationFrame(updateGame);
+        }
+
+        // 글로벌 키보드 이벤트 (스페이스바 시작 처리 & 엔터 정답 제출)
+        window.addEventListener('keydown', (e) => {
+            // 설명창 켜진 상태에서 스페이스바 -> 게임 시작
+            if (isWaitingForStart && e.code === 'Space') {
+                e.preventDefault(); // 스페이스바 스크롤 방지
+                runGame();
+                return;
+            }
+
+            // 게임 플레이 중 엔터키 제출
+            if (e.key === 'Enter' && isGameRunning && e.target.id === 'gameInput') {
+                const userAns = e.target.value.trim();
+                if (!userAns) return;
+
+                let matchedIdx = -1;
+                for (let i = 0; i < fallingItems.length; i++) {
+                    if (fallingItems[i].data.category === userAns) {
+                        matchedIdx = i;
+                        break;
+                    }
+                }
+
+                if (matchedIdx !== -1) {
+                    // 정답 처리
+                    fallingItems[matchedIdx].element.remove();
+                    fallingItems.splice(matchedIdx, 1);
+                    gameScore += 10;
+                    document.getElementById('gameScore').innerText = gameScore;
+                    e.target.value = '';
+                } else {
+                    // 오답 처리
+                    if (fallingItems.length > 0) {
+                        const lowestItem = fallingItems.reduce((prev, curr) => (prev.y > curr.y) ? prev : curr);
+                        endGame(lowestItem.data, `'${userAns}'은(는) 올바른 분리수거가 아닙니다.`);
+                    }
+                }
+            }
+        });
+
+        function endGame(quizItem, customMsg) {
+            isGameRunning = false;
+            isWaitingForStart = false;
+            clearInterval(spawnTimer);
+            cancelAnimationFrame(animFrameId);
+
+            const gameInput = document.getElementById('gameInput');
+            gameInput.disabled = true;
+
+            document.getElementById('gameModalSubtitle').innerText = customMsg;
+            document.getElementById('modalWasteName').innerText = quizItem.name;
+            document.getElementById('modalCorrectCat').innerText = quizItem.category;
+            document.getElementById('modalReason').innerText = quizItem.reason;
+            document.getElementById('modalFinalScore').innerText = gameScore;
+
+            document.getElementById('gameOverModal').classList.remove('hidden');
+        }
+
+        function exitGameToHome() {
+            isGameRunning = false;
+            isWaitingForStart = false;
+            clearInterval(spawnTimer);
+            cancelAnimationFrame(animFrameId);
+            document.getElementById('gameInstructionModal').classList.add('hidden');
+            document.getElementById('gameOverModal').classList.add('hidden');
+            switchPage('page-1');
+        }
+
+        // ------------------------------------
+        // 기존 파일 업로드 / 드롭다운 관련 함수
+        // ------------------------------------
         function handleFileSelected(input) {
             if (input.files.length === 0) return;
 
@@ -289,9 +596,7 @@
 
                 db = data.db;
                 
-                
                 if(currentMode === 'calculator') {
-                    
                     db = data.db; 
                     updateDropdownOptions(['menuA', 'menuB'], ['첫 번째 메뉴 선택', '두 번째 메뉴 선택']);
                     switchPage('page-2'); 
@@ -306,7 +611,6 @@
             });
         }
 
-        // 셀렉트 드롭다운 인자 유연화 수정
         function updateDropdownOptions(elementIds, defaultTexts) {
             elementIds.forEach((id, idx) => {
                 const el = document.getElementById(id);
@@ -318,7 +622,6 @@
             });
         }
 
-        // [기존 1번 계산기 기능]
         function calculateTotalCarbon() {
             const mA = document.getElementById('menuA').value;
             const mB = document.getElementById('menuB').value;
@@ -424,8 +727,6 @@
             switchPage('page-5'); 
         }
 
-
-       
         function getFoodRecommendation() {
             const f1 = document.getElementById('recMenu1').value;
             const f2 = document.getElementById('recMenu2').value;
@@ -442,7 +743,6 @@
 
             const msgEl = document.getElementById('recommendationResultMsg');
 
-            // 제공해주신 스크립트 기반 추천 연산 매칭
             if (value1 < value2) {
                 const diff = (value2 - value1).toFixed(2);
                 msgEl.innerHTML = `추천 음식: <span class="text-lg font-black text-purple-700 font-extrabold">[${f1}]</span><br>탄소 배출량이 <span class="text-emerald-600 font-bold">${diff}kg</span>만큼 더 낮아 <span class="underline">${f1}</span>을(를) 추천합니다! 🌱`;
