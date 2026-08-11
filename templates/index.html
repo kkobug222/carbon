@@ -260,7 +260,11 @@
         <div id="page-game" class="hidden glass-ui p-5 space-y-4 w-full relative">
             <div class="flex justify-between items-center bg-emerald-600/10 px-4 py-2 rounded-xl border border-emerald-500/20">
                 <span class="text-xs font-bold text-emerald-800">♻️ 분리수거 게임</span>
-                <span class="text-xs font-bold text-emerald-900">점수: <span id="gameScore" class="text-base text-emerald-600">0</span>점</span>
+                <!-- 하트 표시 및 점수 표시 영역 -->
+                <div class="flex space-x-3 items-center text-xs font-bold">
+                    <span class="text-red-500">하트: <span id="gameLives">❤️❤️❤️</span></span>
+                    <span class="text-emerald-900">점수: <span id="gameScore" class="text-base text-emerald-600">0</span>점</span>
+                </div>
             </div>
 
             <!-- 떨어지는 영역 -->
@@ -268,9 +272,9 @@
 
             <!-- 타자 입력창 -->
             <div class="space-y-2">
-                <input type="text" id="gameInput" placeholder="분리수거 카테고리 입력 (예: 일반쓰레기)" class="w-full p-3 rounded-xl bg-white/80 text-gray-800 text-sm outline-none border border-emerald-300 focus:border-emerald-500 transition" autocomplete="off">
-                <div class="flex justify-between text-[10px] text-gray-500 px-1">
-                    <span>💡 입력: 일반쓰레기, 음식물쓰레기, 플라스틱, 비닐, 종이, 캔, 유리</span>
+                <input type="text" id="gameInput" placeholder="분리수거 카테고리 입력 (예: 일반)" class="w-full p-3 rounded-xl bg-white/80 text-gray-800 text-sm outline-none border border-emerald-300 focus:border-emerald-500 transition" autocomplete="off">
+                <div class="flex justify-between text-[15px] text-gray-500 px-1">
+                    <span>💡 입력: 일반, 음식물, 플라스틱, 비닐, 종이, 캔, 유리</span>
                 </div>
             </div>
 
@@ -283,16 +287,26 @@
 
     <!-- GAME INSTRUCTION MODAL (게임 설명 모달 팝업) -->
     <div id="gameInstructionModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
-            <h3 class="text-xl font-black text-emerald-600">🎮 게임 설명</h3>
+        <div class="bg-white rounded-3xl p-7 max-w-md w-full text-center space-y-5 shadow-2xl">
+            <h3 class="text-2xl font-black text-emerald-600">🎮 게임 설명</h3>
             
-            <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-left text-xs space-y-2 text-gray-700 leading-relaxed">
+            <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl text-left text-sm space-y-2.5 text-gray-700 leading-relaxed">
                 <p>1. 위에서 떨어지는 쓰레기 이름을 확인하세요.</p>
                 <p>2. 올바른 <strong>분리수거 카테고리</strong>를 입력창에 입력하고 엔터를 누르세요.</p>
-                <p class="text-[11px] text-gray-500 pl-3">
-                    💡 입력예시: <span class="font-bold text-emerald-700">일반쓰레기, 음식물쓰레기, 플라스틱, 비닐, 종이, 캔, 유리</span>
+                <p class="text-xs text-gray-500 pl-3">
+                    💡 입력예시: <span class="font-bold text-emerald-700">일반, 음식물, 플라스틱, 비닐, 종이, 캔, 유리</span>
                 </p>
-                <p>3. 쓰레기가 바닥에 닿거나 틀린 카테고리를 입력하면 게임이 종료됩니다!</p>
+                <p>3. 틀리거나 쓰레기가 바닥에 닿을 때마다 하트(❤️)가 1개씩 깎이며, <strong>하트 3개가 모두 없어지면</strong> 게임이 종료됩니다!</p>
+            </div>
+
+            <!-- 난이도 선택 영역 -->
+            <div class="space-y-2 text-left">
+                <label class="block text-xs font-extrabold text-gray-700 pl-1">⚡ 난이도 선택</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="setDifficulty('easy', 5000)" id="diff-easy" class="diff-btn py-2.5 text-xs font-bold rounded-xl border border-emerald-500 bg-emerald-500 text-white transition shadow-sm">쉬움</button>
+                    <button type="button" onclick="setDifficulty('medium', 4000)" id="diff-medium" class="diff-btn py-2.5 text-xs font-bold rounded-xl border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 transition">보통</button>
+                    <button type="button" onclick="setDifficulty('hard', 3000)" id="diff-hard" class="diff-btn py-2.5 text-xs font-bold rounded-xl border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 transition">어려움</button>
+                </div>
             </div>
 
             <div class="pt-2">
@@ -301,11 +315,11 @@
         </div>
     </div>
 
-    <!-- GAME OVER MODAL (게임 종료/오답 팝업) -->
+    <!-- GAME OVER MODAL (게임 종료 팝업) -->
     <div id="gameOverModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
             <h3 id="gameModalTitle" class="text-xl font-black text-red-600">게임 종료!</h3>
-            <p id="gameModalSubtitle" class="text-xs text-gray-500">올바르지 않은 입력이거나 쓰레기를 놓쳤습니다.</p>
+            <p id="gameModalSubtitle" class="text-xs text-gray-500">모든 하트를 소모하였습니다.</p>
             
             <div class="bg-amber-50 border-l-4 border-amber-400 p-3 rounded-r-xl text-left text-xs space-y-1">
                 <p>🗑️ <strong>쓰레기:</strong> <span id="modalWasteName" class="font-bold">-</span></p>
@@ -335,39 +349,39 @@
         // 게임 관련 데이터 및 상태 변수
         // ------------------------------------
         const quizData = [
-            { name: "귤껍질", category: "음식물쓰레기", reason: "동물의 사료나 퇴비로 활용할 수 있어 음식물쓰레기로 배출합니다." },
-            { name: "바나나껍질", category: "음식물쓰레기", reason: "쉽게 분해되어 사료나 퇴비로 재활용할 수 있습니다." },
-            { name: "바나나 꼭지", category: "일반쓰레기", reason: "섬유질이 많아 쉽게 분해되지 않습니다." },
-            { name: "파인애플 껍질", category: "일반쓰레기", reason: "질기고 단단해 음식물쓰레기로 처리할 수 없습니다." },
-            { name: "코코넛 껍질", category: "일반쓰레기", reason: "매우 단단해 사료나 퇴비로 활용하기 어렵습니다." },
-            { name: "복숭아 씨", category: "일반쓰레기", reason: "단단한 씨앗은 음식물쓰레기로 처리하지 않습니다." },
-            { name: "체리 씨", category: "일반쓰레기", reason: "씨앗류는 분해가 어려워 일반쓰레기입니다." },
-            { name: "아보카도 씨", category: "일반쓰레기", reason: "큰 씨앗은 사료화가 불가능합니다." },
-            { name: "호두껍데기", category: "일반쓰레기", reason: "딱딱한 껍데기는 음식물쓰레기 대상이 아닙니다." },
-            { name: "밤껍질", category: "일반쓰레기", reason: "껍질이 질겨 쉽게 분해되지 않습니다." },
-            { name: "옥수수대", category: "일반쓰레기", reason: "섬유질이 많아 음식물 처리시설에서 처리하기 어렵습니다." },
-            { name: "양파껍질", category: "일반쓰레기", reason: "질긴 껍질은 퇴비화가 어렵습니다." },
-            { name: "마늘껍질", category: "일반쓰레기", reason: "섬유질이 많아 음식물쓰레기로 배출하지 않습니다." },
-            { name: "대파 뿌리", category: "일반쓰레기", reason: "뿌리 부분은 질겨 분해가 어렵습니다." },
-            { name: "달걀껍데기", category: "일반쓰레기", reason: "껍데기는 사료나 퇴비로 사용할 수 없습니다." },
-            { name: "조개껍데기", category: "일반쓰레기", reason: "단단한 껍데기는 음식물쓰레기로 처리하지 않습니다." },
-            { name: "게 껍데기", category: "일반쓰레기", reason: "갑각류 껍데기는 분해되지 않습니다." },
-            { name: "새우껍질", category: "일반쓰레기", reason: "껍질은 음식물 처리시설에서 처리하기 어렵습니다." },
-            { name: "생선 가시", category: "일반쓰레기", reason: "뼈와 가시는 분해되지 않아 일반쓰레기입니다." },
-            { name: "닭뼈", category: "일반쓰레기", reason: "단단한 뼈는 음식물쓰레기 대상이 아닙니다." },
-            { name: "커피 찌꺼기", category: "일반쓰레기", reason: "사료화가 어려워 일반쓰레기로 분류됩니다." },
-            { name: "티백", category: "일반쓰레기", reason: "합성섬유나 플라스틱 성분이 포함된 경우가 많습니다." },
-            { name: "피자 상자(기름 묻음)", category: "일반쓰레기", reason: "기름에 오염된 종이는 재활용이 어렵습니다." },
-            { name: "종이컵", category: "일반쓰레기", reason: "코팅과 오염으로 인해 재활용이 어렵습니다." },
-            { name: "영수증", category: "일반쓰레기", reason: "감열지는 일반 종이와 함께 재활용할 수 없습니다." },
-            { name: "깨진 유리컵", category: "일반쓰레기", reason: "유리병과 재질이 달라 재활용이 불가능합니다." },
+            { name: "귤껍질", category: "음식물", reason: "동물의 사료나 퇴비로 활용할 수 있어 음식물쓰레기로 배출합니다." },
+            { name: "바나나껍질", category: "음식물", reason: "쉽게 분해되어 사료나 퇴비로 재활용할 수 있습니다." },
+            { name: "바나나 꼭지", category: "일반", reason: "섬유질이 많아 쉽게 분해되지 않습니다." },
+            { name: "파인애플 껍질", category: "일반", reason: "질기고 단단해 음식물쓰레기로 처리할 수 없습니다." },
+            { name: "코코넛 껍질", category: "일반", reason: "매우 단단해 사료나 퇴비로 활용하기 어렵습니다." },
+            { name: "복숭아 씨", category: "일반", reason: "단단한 씨앗은 음식물쓰레기로 처리하지 않습니다." },
+            { name: "체리 씨", category: "일반", reason: "씨앗류는 분해가 어려워 일반쓰레기입니다." },
+            { name: "아보카도 씨", category: "일반", reason: "큰 씨앗은 사료화가 불가능합니다." },
+            { name: "호두껍데기", category: "일반", reason: "딱딱한 껍데기는 음식물쓰레기 대상이 아닙니다." },
+            { name: "밤껍질", category: "일반", reason: "껍질이 질겨 쉽게 분해되지 않습니다." },
+            { name: "옥수수대", category: "일반", reason: "섬유질이 많아 음식물 처리시설에서 처리하기 어렵습니다." },
+            { name: "양파껍질", category: "일반", reason: "질긴 껍질은 퇴비화가 어렵습니다." },
+            { name: "마늘껍질", category: "일반", reason: "섬유질이 많아 음식물쓰레기로 배출하지 않습니다." },
+            { name: "대파 뿌리", category: "일반", reason: "뿌리 부분은 질겨 분해가 어렵습니다." },
+            { name: "달걀껍데기", category: "일반", reason: "껍데기는 사료나 퇴비로 사용할 수 없습니다." },
+            { name: "조개껍데기", category: "일반", reason: "단단한 껍데기는 음식물쓰레기로 처리하지 않습니다." },
+            { name: "게 껍데기", category: "일반", reason: "갑각류 껍데기는 분해되지 않습니다." },
+            { name: "새우껍질", category: "일반", reason: "껍질은 음식물 처리시설에서 처리하기 어렵습니다." },
+            { name: "생선 가시", category: "일반", reason: "뼈와 가시는 분해되지 않아 일반쓰레기입니다." },
+            { name: "닭뼈", category: "일반", reason: "단단한 뼈는 음식물쓰레기 대상이 아닙니다." },
+            { name: "커피 찌꺼기", category: "일반", reason: "사료화가 어려워 일반쓰레기로 분류됩니다." },
+            { name: "티백", category: "일반", reason: "합성섬유나 플라스틱 성분이 포함된 경우가 많습니다." },
+            { name: "피자 상자", category: "일반", reason: "기름에 오염된 종이는 재활용이 어렵습니다." },
+            { name: "종이컵", category: "일반", reason: "코팅과 오염으로 인해 재활용이 어렵습니다." },
+            { name: "영수증", category: "일반", reason: "감열지는 일반 종이와 함께 재활용할 수 없습니다." },
+            { name: "깨진 유리컵", category: "일반", reason: "유리병과 재질이 달라 재활용이 불가능합니다." },
             { name: "유리병", category: "유리", reason: "내용물을 비우면 유리병으로 재활용할 수 있습니다." },
-            { name: "칫솔", category: "일반쓰레기", reason: "여러 재질이 결합되어 분리배출이 어렵습니다." },
+            { name: "칫솔", category: "일반", reason: "여러 재질이 결합되어 분리배출이 어렵습니다." },
             { name: "과자 봉지", category: "비닐", reason: "내용물을 비우면 비닐류로 재활용할 수 있습니다." },
             { name: "라면 봉지", category: "비닐", reason: "국물과 음식물을 제거하면 비닐류입니다." },
             { name: "비닐 쇼핑백", category: "비닐", reason: "깨끗한 비닐은 재활용이 가능합니다." },
             { name: "에어캡(뽁뽁이)", category: "비닐", reason: "테이프를 제거하면 비닐류로 배출합니다." },
-            { name: "랩", category: "일반쓰레기", reason: "오염이 심하고 재활용이 어렵습니다." },
+            { name: "랩", category: "일반", reason: "오염이 심하고 재활용이 어렵습니다." },
             { name: "음료 캔", category: "캔", reason: "내용물을 비우고 압착하면 재활용됩니다." },
             { name: "참치캔", category: "캔", reason: "내용물을 비우고 씻어서 배출합니다." },
             { name: "부탄가스", category: "캔", reason: "가스를 완전히 비운 후 캔류로 배출합니다." },
@@ -375,11 +389,36 @@
         ];
 
         let gameScore = 0;
+        let gameLives = 3;
         let isGameRunning = false;
-        let isWaitingForStart = false; // 스페이스바 대기 상태 플래그
+        let isWaitingForStart = false; 
         let fallingItems = [];
         let spawnTimer = null;
         let animFrameId = null;
+        let spawnInterval = 5000; 
+
+        function setDifficulty(level, interval) {
+            spawnInterval = interval;
+            const btnIds = ['easy', 'medium', 'hard'];
+            
+            btnIds.forEach(id => {
+                const btn = document.getElementById(`diff-${id}`);
+                if (id === level) {
+                    btn.className = "diff-btn py-2.5 text-xs font-bold rounded-xl border border-emerald-500 bg-emerald-500 text-white transition shadow-sm";
+                } else {
+                    btn.className = "diff-btn py-2.5 text-xs font-bold rounded-xl border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 transition";
+                }
+            });
+        }
+
+        function updateLivesDisplay() {
+            let hearts = "";
+            for (let i = 0; i < gameLives; i++) {
+                hearts += "❤️";
+            }
+            if (gameLives <= 0) hearts = "💔";
+            document.getElementById('gameLives').innerText = hearts;
+        }
 
         function switchPage(pageId) {
             const pages = ['page-1', 'page-2', 'page-3', 'page-4', 'page-5', 'page-recommend-input', 'page-recommend-result', 'page-game'];
@@ -422,33 +461,34 @@
             prepareGame();
         }
 
-        // 1. 게임판 초기화 및 '설명창' 띄우기
         function prepareGame() {
             document.getElementById('gameOverModal').classList.add('hidden');
-            document.getElementById('gameInstructionModal').classList.remove('hidden'); // 설명 팝업 표시
+            document.getElementById('gameInstructionModal').classList.remove('hidden');
             
             const canvas = document.getElementById('gameCanvas');
             const gameInput = document.getElementById('gameInput');
 
             gameScore = 0;
+            gameLives = 3;
             document.getElementById('gameScore').innerText = gameScore;
+            updateLivesDisplay();
+
             canvas.innerHTML = '';
             fallingItems = [];
             
             isGameRunning = false;
-            isWaitingForStart = true; // 스페이스바 대기 시작
+            isWaitingForStart = true;
 
-            gameInput.disabled = true; // 대기 상태에서는 인풋창 차단
+            gameInput.disabled = true;
             gameInput.value = '';
 
             if(spawnTimer) clearInterval(spawnTimer);
             if(animFrameId) cancelAnimationFrame(animFrameId);
         }
 
-        // 2. 스페이스바 눌렀을 때 실제 게임 동작 시작
         function runGame() {
             isWaitingForStart = false;
-            document.getElementById('gameInstructionModal').classList.add('hidden'); // 설명 팝업 숨김
+            document.getElementById('gameInstructionModal').classList.add('hidden');
 
             const gameInput = document.getElementById('gameInput');
             gameInput.disabled = false;
@@ -456,9 +496,8 @@
 
             isGameRunning = true;
 
-            // 단어 생성 및 애니메이션 시작 (3초 주기)
             if(spawnTimer) clearInterval(spawnTimer);
-            spawnTimer = setInterval(spawnWord, 3000);
+            spawnTimer = setInterval(spawnWord, spawnInterval);
             spawnWord();
 
             if(animFrameId) cancelAnimationFrame(animFrameId);
@@ -490,37 +529,45 @@
             });
         }
 
+        // 바닥 도달 시에도 하트 차감되도록 수정된 루프
         function updateGame() {
             if (!isGameRunning) return;
 
             const canvas = document.getElementById('gameCanvas');
             const maxHeight = canvas.clientHeight - 32;
 
-            for (let i = 0; i < fallingItems.length; i++) {
+            for (let i = fallingItems.length - 1; i >= 0; i--) {
                 const item = fallingItems[i];
                 item.y += item.speed;
                 item.element.style.top = `${item.y}px`;
 
-                // 바닥 도달 시 게임 오버
+                // 쓰레기가 바닥에 닿은 경우
                 if (item.y >= maxHeight) {
-                    endGame(item.data, "바닥에 닿기 전에 분리수거를 완료하지 못했습니다!");
-                    return;
+                    item.element.remove();
+                    const missedQuizData = item.data;
+                    fallingItems.splice(i, 1);
+
+                    gameLives--; // 하트 1개 차감
+                    updateLivesDisplay();
+
+                    // 하트가 0개가 되면 게임 오버
+                    if (gameLives <= 0) {
+                        endGame(missedQuizData, "쓰레기를 놓쳐 모든 하트를 소모하였습니다!");
+                        return;
+                    }
                 }
             }
 
             animFrameId = requestAnimationFrame(updateGame);
         }
 
-        // 글로벌 키보드 이벤트 (스페이스바 시작 처리 & 엔터 정답 제출)
         window.addEventListener('keydown', (e) => {
-            // 설명창 켜진 상태에서 스페이스바 -> 게임 시작
             if (isWaitingForStart && e.code === 'Space') {
-                e.preventDefault(); // 스페이스바 스크롤 방지
+                e.preventDefault();
                 runGame();
                 return;
             }
 
-            // 게임 플레이 중 엔터키 제출
             if (e.key === 'Enter' && isGameRunning && e.target.id === 'gameInput') {
                 const userAns = e.target.value.trim();
                 if (!userAns) return;
@@ -534,17 +581,22 @@
                 }
 
                 if (matchedIdx !== -1) {
-                    // 정답 처리
                     fallingItems[matchedIdx].element.remove();
                     fallingItems.splice(matchedIdx, 1);
                     gameScore += 10;
                     document.getElementById('gameScore').innerText = gameScore;
                     e.target.value = '';
                 } else {
-                    // 오답 처리
                     if (fallingItems.length > 0) {
+                        gameLives--; // 오답 시 하트 1개 차감
+                        updateLivesDisplay();
+                        e.target.value = '';
+
                         const lowestItem = fallingItems.reduce((prev, curr) => (prev.y > curr.y) ? prev : curr);
-                        endGame(lowestItem.data, `'${userAns}'은(는) 올바른 분리수거가 아닙니다.`);
+
+                        if (gameLives <= 0) {
+                            endGame(lowestItem.data, `오답으로 인해 모든 하트를 소모하였습니다! ('${userAns}'은(는) 잘못된 입력입니다)`);
+                        }
                     }
                 }
             }
